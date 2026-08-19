@@ -13,8 +13,7 @@ public class Jeryl {
         String greeting = "Hello! I'm Jeryl.\n" + "What can I do for you?";
         System.out.println(greeting);
 
-        String[] tasks = new String[100];
-        boolean[] isDone = new boolean[100];
+        Task[] tasks = new Task[100];
         int taskCount = 0;
 
         Scanner scanner = new Scanner(System.in);
@@ -24,21 +23,20 @@ public class Jeryl {
                 break;
             } else if (input.equals("list")) {
                 for (int i = 0; i < taskCount; i++) {
-                    String statusIcon = isDone[i] ? "X" : " ";
-                    System.out.println((i + 1) + ".[" + statusIcon + "] " + tasks[i]);
+                    System.out.println((i + 1) + "." + tasks[i]);
                 }
             } else if (input.startsWith("mark ")) {
                 int index = Integer.parseInt(input.substring(5)) - 1;
-                isDone[index] = true;
+                tasks[index].markAsDone();
                 System.out.println("Nice! I've marked this task as done:");
-                System.out.println("  [X] " + tasks[index]);
+                System.out.println("  " + tasks[index]);
             } else if (input.startsWith("unmark ")) {
                 int index = Integer.parseInt(input.substring(7)) - 1;
-                isDone[index] = false;
+                tasks[index].markAsNotDone();
                 System.out.println("OK, I've marked this task as not done yet:");
-                System.out.println("  [ ] " + tasks[index]);
+                System.out.println("  " + tasks[index]);
             } else {
-                tasks[taskCount] = input;
+                tasks[taskCount] = new Task(input);
                 taskCount++;
                 System.out.println("added: " + input);
             }
