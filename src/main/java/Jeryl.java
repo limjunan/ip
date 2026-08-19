@@ -13,13 +13,23 @@ public class Jeryl {
         String greeting = "Hello! I'm Jeryl.\n" + "What can I do for you?";
         System.out.println(greeting);
 
+        String[] tasks = new String[100];
+        int taskCount = 0;
+
         Scanner scanner = new Scanner(System.in);
         while (scanner.hasNextLine()) {
             String input = scanner.nextLine();
             if (input.equals("bye")) {
                 break;
+            } else if (input.equals("list")) {
+                for (int i = 0; i < taskCount; i++) {
+                    System.out.println((i + 1) + ". " + tasks[i]);
+                }
+            } else {
+                tasks[taskCount] = input;
+                taskCount++;
+                System.out.println("added: " + input);
             }
-            System.out.println(input);
         }
         scanner.close();
 
