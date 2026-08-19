@@ -35,15 +35,45 @@ public class Jeryl {
                 tasks[index].markAsNotDone();
                 System.out.println("OK, I've marked this task as not done yet:");
                 System.out.println("  " + tasks[index]);
-            } else {
-                tasks[taskCount] = new Task(input);
+            } else if (input.startsWith("todo ")) {
+                String description = input.substring(5);
+                tasks[taskCount] = new Task(description, 'T');
                 taskCount++;
-                System.out.println("added: " + input);
+                printAddedMessage(tasks[taskCount - 1], taskCount);
+            } else if (input.startsWith("deadline ")) {
+                String rest = input.substring(9);
+                int byIndex = rest.indexOf("/by ");
+                String description = rest.substring(0, byIndex).trim();
+                String by = rest.substring(byIndex + 4).trim();
+                Task task = new Task(description, 'D');
+                task.by = by;
+                tasks[taskCount] = task;
+                taskCount++;
+                printAddedMessage(tasks[taskCount - 1], taskCount);
+            } else if (input.startsWith("event ")) {
+                String rest = input.substring(6);
+                int fromIndex = rest.indexOf("/from ");
+                int toIndex = rest.indexOf("/to ");
+                String description = rest.substring(0, fromIndex).trim();
+                String from = rest.substring(fromIndex + 6, toIndex).trim();
+                String to = rest.substring(toIndex + 4).trim();
+                Task task = new Task(description, 'E');
+                task.from = from;
+                task.to = to;
+                tasks[taskCount] = task;
+                taskCount++;
+                printAddedMessage(tasks[taskCount - 1], taskCount);
             }
         }
         scanner.close();
 
         String farewell = "Bye. Hope to see you again soon!";
         System.out.println(farewell);
+    }
+
+    private static void printAddedMessage(Task task, int taskCount) {
+        System.out.println("Got it. I've added this task:");
+        System.out.println("  " + task);
+        System.out.println("Now you have " + taskCount + " tasks in the list.");
     }
 }

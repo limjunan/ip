@@ -6,9 +6,16 @@ public class Task {
     protected String description;
     protected boolean isDone;
 
-    public Task(String description) {
+    // 'T' = todo, 'D' = deadline, 'E' = event.
+    protected char type;
+    protected String by;
+    protected String from;
+    protected String to;
+
+    public Task(String description, char type) {
         this.description = description;
         this.isDone = false;
+        this.type = type;
     }
 
     public void markAsDone() {
@@ -28,6 +35,12 @@ public class Task {
 
     @Override
     public String toString() {
-        return "[" + getStatusIcon() + "] " + description;
+        String result = "[" + type + "][" + getStatusIcon() + "] " + description;
+        if (type == 'D') {
+            result += " (by: " + by + ")";
+        } else if (type == 'E') {
+            result += " (from: " + from + " to: " + to + ")";
+        }
+        return result;
     }
 }
