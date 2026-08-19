@@ -35,6 +35,8 @@ public class Jeryl {
                 tasks[index].markAsNotDone();
                 System.out.println("OK, I've marked this task as not done yet:");
                 System.out.println("  " + tasks[index]);
+            } else if (input.equals("todo") || input.startsWith("todo ") && input.substring(5).trim().isEmpty()) {
+                System.out.println("OOPS!!! The description of a todo cannot be empty.");
             } else if (input.startsWith("todo ")) {
                 String description = input.substring(5);
                 tasks[taskCount] = new Todo(description);
@@ -58,6 +60,8 @@ public class Jeryl {
                 tasks[taskCount] = new Event(description, from, to);
                 taskCount++;
                 printAddedMessage(tasks[taskCount - 1], taskCount);
+            } else {
+                System.out.println("OOPS!!! I'm sorry, but I don't know what that means :-(");
             }
         }
         scanner.close();
