@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Jeryl {
@@ -13,8 +14,7 @@ public class Jeryl {
         String greeting = "Hello! I'm Jeryl.\n" + "What can I do for you?";
         System.out.println(greeting);
 
-        Task[] tasks = new Task[100];
-        int taskCount = 0;
+        ArrayList<Task> tasks = new ArrayList<>();
 
         Scanner scanner = new Scanner(System.in);
         while (scanner.hasNextLine()) {
@@ -24,38 +24,32 @@ public class Jeryl {
             }
             try {
                 if (input.equals("list")) {
-                    for (int i = 0; i < taskCount; i++) {
-                        System.out.println((i + 1) + "." + tasks[i]);
+                    for (int i = 0; i < tasks.size(); i++) {
+                        System.out.println((i + 1) + "." + tasks.get(i));
                     }
                 } else if (input.startsWith("mark ") || input.equals("mark")) {
-                    int index = parseTaskIndex(input, "mark", taskCount);
-                    tasks[index].markAsDone();
+                    int index = parseTaskIndex(input, "mark", tasks.size());
+                    tasks.get(index).markAsDone();
                     System.out.println("Nice! I've marked this task as done:");
-                    System.out.println("  " + tasks[index]);
+                    System.out.println("  " + tasks.get(index));
                 } else if (input.startsWith("unmark ") || input.equals("unmark")) {
-                    int index = parseTaskIndex(input, "unmark", taskCount);
-                    tasks[index].markAsNotDone();
+                    int index = parseTaskIndex(input, "unmark", tasks.size());
+                    tasks.get(index).markAsNotDone();
                     System.out.println("OK, I've marked this task as not done yet:");
-                    System.out.println("  " + tasks[index]);
+                    System.out.println("  " + tasks.get(index));
                 } else if (input.startsWith("delete ") || input.equals("delete")) {
-                    int index = parseTaskIndex(input, "delete", taskCount);
-                    Task removed = tasks[index];
-                    for (int i = index; i < taskCount - 1; i++) {
-                        tasks[i] = tasks[i + 1];
-                    }
-                    taskCount--;
-                    tasks[taskCount] = null;
+                    int index = parseTaskIndex(input, "delete", tasks.size());
+                    Task removed = tasks.remove(index);
                     System.out.println("Noted. I've removed this task:");
                     System.out.println("  " + removed);
-                    System.out.println("Now you have " + taskCount + " tasks in the list.");
+                    System.out.println("Now you have " + tasks.size() + " tasks in the list.");
                 } else if (input.equals("todo") || input.startsWith("todo ")) {
                     String description = input.equals("todo") ? "" : input.substring(5).trim();
                     if (description.isEmpty()) {
                         throw new JerylException("OOPS!!! The description of a todo cannot be empty.");
                     }
-                    tasks[taskCount] = new Todo(description);
-                    taskCount++;
-                    printAddedMessage(tasks[taskCount - 1], taskCount);
+                    tasks.add(new Todo(description));
+                    printAddedMessage(tasks.get(tasks.size() - 1), tasks.size());
                 } else if (input.equals("deadline") || input.startsWith("deadline ")) {
                     String rest = input.equals("deadline") ? "" : input.substring(9);
                     int byIndex = rest.indexOf("/by ");
@@ -70,9 +64,8 @@ public class Jeryl {
                     if (by.isEmpty()) {
                         throw new JerylException("OOPS!!! The \"/by\" date/time of a deadline cannot be empty.");
                     }
-                    tasks[taskCount] = new Deadline(description, by);
-                    taskCount++;
-                    printAddedMessage(tasks[taskCount - 1], taskCount);
+                    tasks.add(new Deadline(description, by));
+                    printAddedMessage(tasks.get(tasks.size() - 1), tasks.size());
                 } else if (input.equals("event") || input.startsWith("event ")) {
                     String rest = input.equals("event") ? "" : input.substring(6);
                     int fromIndex = rest.indexOf("/from ");
@@ -89,9 +82,8 @@ public class Jeryl {
                     if (from.isEmpty() || to.isEmpty()) {
                         throw new JerylException("OOPS!!! The \"/from\" and \"/to\" date/time of an event cannot be empty.");
                     }
-                    tasks[taskCount] = new Event(description, from, to);
-                    taskCount++;
-                    printAddedMessage(tasks[taskCount - 1], taskCount);
+                    tasks.add(new Event(description, from, to));
+                    printAddedMessage(tasks.get(tasks.size() - 1), tasks.size());
                 } else {
                     throw new JerylException("OOPS!!! I'm sorry, but I don't know what that means :-(");
                 }
@@ -106,8 +98,8 @@ public class Jeryl {
     }
 
     /**
-     * Parses the 1-based task index following a "mark"/"unmark" command
-     * and validates it against the current task list.
+     * Parses the 1-based task index following a "mark"/"unmark"/"delete"
+     * command and validates it against the current task count.
      */
     private static int parseTaskIndex(String input, String commandWord, int taskCount) throws JerylException {
         String indexString = input.length() > commandWord.length()
