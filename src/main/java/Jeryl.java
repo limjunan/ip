@@ -7,5 +7,11 @@ public class Jeryl {
                 + " \\___/ \\___|_|   \\__, |_|\n"
                 + "                 |___/\n";
         System.out.println(banner);
+
+        String greeting = "Hello! I'm Jeryl.\n" + "What can I do for you?";
+        System.out.println(greeting);
+
+        String farewell = "Bye. Hope to see you again soon!";
+        System.out.println(farewell);
     }
 }
