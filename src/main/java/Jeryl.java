@@ -37,6 +37,17 @@ public class Jeryl {
                     tasks[index].markAsNotDone();
                     System.out.println("OK, I've marked this task as not done yet:");
                     System.out.println("  " + tasks[index]);
+                } else if (input.startsWith("delete ") || input.equals("delete")) {
+                    int index = parseTaskIndex(input, "delete", taskCount);
+                    Task removed = tasks[index];
+                    for (int i = index; i < taskCount - 1; i++) {
+                        tasks[i] = tasks[i + 1];
+                    }
+                    taskCount--;
+                    tasks[taskCount] = null;
+                    System.out.println("Noted. I've removed this task:");
+                    System.out.println("  " + removed);
+                    System.out.println("Now you have " + taskCount + " tasks in the list.");
                 } else if (input.equals("todo") || input.startsWith("todo ")) {
                     String description = input.equals("todo") ? "" : input.substring(5).trim();
                     if (description.isEmpty()) {
