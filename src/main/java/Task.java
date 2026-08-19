@@ -1,21 +1,15 @@
 /**
  * Represents a single task tracked by the chatbot, with a description
- * and a completion status.
+ * and a completion status. Subclasses add the type-specific details
+ * (e.g. a deadline's due date).
  */
 public class Task {
     protected String description;
     protected boolean isDone;
 
-    // 'T' = todo, 'D' = deadline, 'E' = event.
-    protected char type;
-    protected String by;
-    protected String from;
-    protected String to;
-
-    public Task(String description, char type) {
+    public Task(String description) {
         this.description = description;
         this.isDone = false;
-        this.type = type;
     }
 
     public void markAsDone() {
@@ -35,12 +29,6 @@ public class Task {
 
     @Override
     public String toString() {
-        String result = "[" + type + "][" + getStatusIcon() + "] " + description;
-        if (type == 'D') {
-            result += " (by: " + by + ")";
-        } else if (type == 'E') {
-            result += " (from: " + from + " to: " + to + ")";
-        }
-        return result;
+        return "[" + getStatusIcon() + "] " + description;
     }
 }

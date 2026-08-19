@@ -37,7 +37,7 @@ public class Jeryl {
                 System.out.println("  " + tasks[index]);
             } else if (input.startsWith("todo ")) {
                 String description = input.substring(5);
-                tasks[taskCount] = new Task(description, 'T');
+                tasks[taskCount] = new Todo(description);
                 taskCount++;
                 printAddedMessage(tasks[taskCount - 1], taskCount);
             } else if (input.startsWith("deadline ")) {
@@ -45,9 +45,7 @@ public class Jeryl {
                 int byIndex = rest.indexOf("/by ");
                 String description = rest.substring(0, byIndex).trim();
                 String by = rest.substring(byIndex + 4).trim();
-                Task task = new Task(description, 'D');
-                task.by = by;
-                tasks[taskCount] = task;
+                tasks[taskCount] = new Deadline(description, by);
                 taskCount++;
                 printAddedMessage(tasks[taskCount - 1], taskCount);
             } else if (input.startsWith("event ")) {
@@ -57,10 +55,7 @@ public class Jeryl {
                 String description = rest.substring(0, fromIndex).trim();
                 String from = rest.substring(fromIndex + 6, toIndex).trim();
                 String to = rest.substring(toIndex + 4).trim();
-                Task task = new Task(description, 'E');
-                task.from = from;
-                task.to = to;
-                tasks[taskCount] = task;
+                tasks[taskCount] = new Event(description, from, to);
                 taskCount++;
                 printAddedMessage(tasks[taskCount - 1], taskCount);
             }
