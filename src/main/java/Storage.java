@@ -1,0 +1,116 @@
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Scanner;
+
+/**
+ * Handles reading tasks from, and writing tasks to, a save file on disk.
+ * The file path is relative to the project root, so it works regardless
+ * of which OS the app is run on.
+ */
+public class Storage {
+    private final Path filePath;
+
+    public Storage(String filePath) {
+        this.filePath = Paths.get(filePath);
+    }
+
+    /**
+     * Loads tasks from the save file. If the file (or its parent folder)
+     * does not exist yet, returns an empty list instead of failing, since
+     * that's the normal situation on a brand new install.
+     *
+     * Any line that doesn't match the expected format is skipped, with a
+     * warning printed, so a corrupted file doesn't prevent the app from
+     * starting up.
+     */
+    public ArrayList<Task> load() {
+        ArrayList<Task> tasks = new ArrayList<>();
+        File file = filePath.toFile();
+        if (!file.exists()) {
+            return tasks;
+        }
+        try (Scanner scanner = new Scanner(file)) {
+            int lineNumber = 0;
+            while (scanner.hasNextLine()) {
+                lineNumber++;
+                String line = scanner.nextLine();
+                if (line.trim().isEmpty()) {
+                    continue;
+                }
+                try {
+                    tasks.add(parseLine(line));
+                } catch (JerylException e) {
+                    System.out.println("Skipping corrupted save data at line " + lineNumber + ": " + e.getMessage());
+                }
+            }
+        } catch (FileNotFoundException e) {
+            // File existed a moment ago but is now gone; treat as empty.
+            return new ArrayList<>();
+        }
+        return tasks;
+    }
+
+    /**
+     * Parses one line of the save file into a Task.
+     */
+    private Task parseLine(String line) throws JerylException {
+        String[] parts = line.split("\\s*\\|\\s*");
+        if (parts.length < 3) {
+            throw new JerylException("expected at least 3 fields, got " + parts.length);
+        }
+        String type = parts[0];
+        boolean isDone = parts[1].equals("1");
+        String description = parts[2];
+
+        Task task;
+        switch (type) {
+        case "T":
+            task = new Todo(description);
+            break;
+        case "D":
+            if (parts.length < 4) {
+                throw new JerylException("deadline is missing its \"by\" field");
+            }
+            task = new Deadline(description, parts[3]);
+            break;
+        case "E":
+            if (parts.length < 5) {
+                throw new JerylException("event is missing its \"from\"/\"to\" fields");
+            }
+            task = new Event(description, parts[3], parts[4]);
+            break;
+        default:
+            throw new JerylException("unknown task type \"" + type + "\"");
+        }
+        if (isDone) {
+            task.markAsDone();
+        }
+        return task;
+    }
+
+    /**
+     * Writes the given tasks to the save file, creating the parent folder
+     * first if it doesn't exist yet.
+     */
+    public void save(ArrayList<Task> tasks) {
+        try {
+            Path parent = filePath.getParent();
+            if (parent != null) {
+                Files.createDirectories(parent);
+            }
+            try (PrintWriter writer = new PrintWriter(filePath.toFile())) {
+                for (Task task : tasks) {
+                    writer.println(task.toFileString());
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("OOPS!!! I couldn't save your tasks to disk: " + e.getMessage());
+        }
+    }
+}

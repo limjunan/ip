@@ -16,6 +16,9 @@ bin/
 # Temp files
 _temp/
 
+# Save data written by the app at runtime
+/data/
+
 # Local, untracked Claude notes
 CLAUDE.local.md
 

@@ -2,6 +2,8 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Jeryl {
+    private static final String DATA_FILE_PATH = "./data/jeryl.txt";
+
     public static void main(String[] args) {
         String banner = "     _                 _ \n"
                 + "    | | ___ _ __ _   _| |\n"
@@ -14,7 +16,8 @@ public class Jeryl {
         String greeting = "Hello! I'm Jeryl.\n" + "What can I do for you?";
         System.out.println(greeting);
 
-        ArrayList<Task> tasks = new ArrayList<>();
+        Storage storage = new Storage(DATA_FILE_PATH);
+        ArrayList<Task> tasks = storage.load();
 
         Scanner scanner = new Scanner(System.in);
         while (scanner.hasNextLine()) {
@@ -34,21 +37,27 @@ public class Jeryl {
                     break;
                 case MARK:
                     markTask(tasks, rest);
+                    storage.save(tasks);
                     break;
                 case UNMARK:
                     unmarkTask(tasks, rest);
+                    storage.save(tasks);
                     break;
                 case DELETE:
                     deleteTask(tasks, rest);
+                    storage.save(tasks);
                     break;
                 case TODO:
                     addTodo(tasks, rest);
+                    storage.save(tasks);
                     break;
                 case DEADLINE:
                     addDeadline(tasks, rest);
+                    storage.save(tasks);
                     break;
                 case EVENT:
                     addEvent(tasks, rest);
+                    storage.save(tasks);
                     break;
                 default:
                     throw new JerylException("OOPS!!! I'm sorry, but I don't know what that means :-(");
