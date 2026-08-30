@@ -36,6 +36,21 @@ public class TaskList {
     }
 
     /**
+     * Returns the tasks whose description contains the given keyword
+     * (case-insensitive), in their original order.
+     */
+    public TaskList find(String keyword) {
+        ArrayList<Task> matches = new ArrayList<>();
+        String lowerKeyword = keyword.toLowerCase();
+        for (Task task : tasks) {
+            if (task.getDescription().toLowerCase().contains(lowerKeyword)) {
+                matches.add(task);
+            }
+        }
+        return new TaskList(matches);
+    }
+
+    /**
      * Returns the underlying tasks as a plain ArrayList, e.g. so Storage
      * can write them all out to disk.
      */

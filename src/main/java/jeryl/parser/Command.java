@@ -5,7 +5,7 @@ package jeryl.parser;
  * whitespace-separated word of the user's input.
  */
 public enum Command {
-    LIST, MARK, UNMARK, DELETE, TODO, DEADLINE, EVENT, BYE, UNKNOWN;
+    LIST, MARK, UNMARK, DELETE, TODO, DEADLINE, EVENT, FIND, BYE, UNKNOWN;
 
     /**
      * Maps a command keyword (case-sensitive, as typed by the user) to
