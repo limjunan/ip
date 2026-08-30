@@ -66,6 +66,11 @@ public class Ui {
         }
     }
 
+    public void showMatchingTasks(TaskList matches) {
+        System.out.println("Here are the matching tasks in your list:");
+        showTaskList(matches);
+    }
+
     public void showAddedMessage(Task task, int taskCount) {
         System.out.println("Got it. I've added this task:");
         System.out.println("  " + task);

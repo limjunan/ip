@@ -60,6 +60,9 @@ public class Jeryl {
                     addEvent(tasks, rest, ui);
                     storage.save(tasks.asArrayList());
                     break;
+                case FIND:
+                    findTasks(tasks, rest, ui);
+                    break;
                 default:
                     throw new JerylException("OOPS!!! I'm sorry, but I don't know what that means :-(");
                 }
@@ -132,6 +135,14 @@ public class Jeryl {
         }
         tasks.add(new Event(description, parseDate(from), parseDate(to)));
         ui.showAddedMessage(tasks.get(tasks.size() - 1), tasks.size());
+    }
+
+    private static void findTasks(TaskList tasks, String args, Ui ui) throws JerylException {
+        String keyword = args.trim();
+        if (keyword.isEmpty()) {
+            throw new JerylException("OOPS!!! Please specify a keyword to find.");
+        }
+        ui.showMatchingTasks(tasks.find(keyword));
     }
 
     /**
