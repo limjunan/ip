@@ -12,6 +12,10 @@ public class Parser {
     public record ParsedInput(Command command, String arguments) {
     }
 
+    /**
+     * Splits one line of raw user input into a Command and the raw
+     * argument text that follows it.
+     */
     public static ParsedInput parse(String input) {
         int spaceIndex = input.indexOf(' ');
         String keyword = spaceIndex == -1 ? input : input.substring(0, spaceIndex);

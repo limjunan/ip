@@ -11,6 +11,9 @@ public class Deadline extends Task {
 
     protected LocalDate by;
 
+    /**
+     * Creates a not-yet-done deadline task due on the given date.
+     */
     public Deadline(String description, LocalDate by) {
         super(description);
         this.by = by;

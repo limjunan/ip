@@ -9,19 +9,31 @@ public class Task {
     protected String description;
     protected boolean isDone;
 
+    /**
+     * Creates a not-yet-done task with the given description.
+     */
     public Task(String description) {
         this.description = description;
         this.isDone = false;
     }
 
+    /**
+     * Returns this task's description.
+     */
     public String getDescription() {
         return description;
     }
 
+    /**
+     * Marks this task as done.
+     */
     public void markAsDone() {
         isDone = true;
     }
 
+    /**
+     * Marks this task as not done.
+     */
     public void markAsNotDone() {
         isDone = false;
     }

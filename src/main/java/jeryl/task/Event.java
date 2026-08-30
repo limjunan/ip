@@ -12,6 +12,10 @@ public class Event extends Task {
     protected LocalDate from;
     protected LocalDate to;
 
+    /**
+     * Creates a not-yet-done event task spanning the given start and
+     * end dates.
+     */
     public Event(String description, LocalDate from, LocalDate to) {
         super(description);
         this.from = from;
