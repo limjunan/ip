@@ -1,6 +1,5 @@
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
 
 public class Jeryl {
     private static final String DATA_FILE_PATH = "./data/jeryl.txt";
@@ -10,14 +9,12 @@ public class Jeryl {
         ui.showWelcome();
 
         Storage storage = new Storage(DATA_FILE_PATH);
-        ArrayList<Task> tasks = storage.load();
+        TaskList tasks = new TaskList(storage.load());
 
         while (ui.hasNextCommand()) {
-            String input = ui.readCommand();
-            int spaceIndex = input.indexOf(' ');
-            String keyword = spaceIndex == -1 ? input : input.substring(0, spaceIndex);
-            String rest = spaceIndex == -1 ? "" : input.substring(spaceIndex + 1);
-            Command command = Command.fromKeyword(keyword);
+            Parser.ParsedInput parsed = Parser.parse(ui.readCommand());
+            Command command = parsed.command();
+            String rest = parsed.arguments();
 
             if (command == Command.BYE) {
                 break;
@@ -29,27 +26,27 @@ public class Jeryl {
                     break;
                 case MARK:
                     markTask(tasks, rest, ui);
-                    storage.save(tasks);
+                    storage.save(tasks.asArrayList());
                     break;
                 case UNMARK:
                     unmarkTask(tasks, rest, ui);
-                    storage.save(tasks);
+                    storage.save(tasks.asArrayList());
                     break;
                 case DELETE:
                     deleteTask(tasks, rest, ui);
-                    storage.save(tasks);
+                    storage.save(tasks.asArrayList());
                     break;
                 case TODO:
                     addTodo(tasks, rest, ui);
-                    storage.save(tasks);
+                    storage.save(tasks.asArrayList());
                     break;
                 case DEADLINE:
                     addDeadline(tasks, rest, ui);
-                    storage.save(tasks);
+                    storage.save(tasks.asArrayList());
                     break;
                 case EVENT:
                     addEvent(tasks, rest, ui);
-                    storage.save(tasks);
+                    storage.save(tasks.asArrayList());
                     break;
                 default:
                     throw new JerylException("OOPS!!! I'm sorry, but I don't know what that means :-(");
@@ -62,25 +59,25 @@ public class Jeryl {
         ui.showGoodbye();
     }
 
-    private static void markTask(ArrayList<Task> tasks, String args, Ui ui) throws JerylException {
+    private static void markTask(TaskList tasks, String args, Ui ui) throws JerylException {
         int index = parseTaskIndex(args, "mark", tasks.size());
         tasks.get(index).markAsDone();
         ui.showMarkedMessage(tasks.get(index));
     }
 
-    private static void unmarkTask(ArrayList<Task> tasks, String args, Ui ui) throws JerylException {
+    private static void unmarkTask(TaskList tasks, String args, Ui ui) throws JerylException {
         int index = parseTaskIndex(args, "unmark", tasks.size());
         tasks.get(index).markAsNotDone();
         ui.showUnmarkedMessage(tasks.get(index));
     }
 
-    private static void deleteTask(ArrayList<Task> tasks, String args, Ui ui) throws JerylException {
+    private static void deleteTask(TaskList tasks, String args, Ui ui) throws JerylException {
         int index = parseTaskIndex(args, "delete", tasks.size());
-        Task removed = tasks.remove(index);
+        Task removed = tasks.delete(index);
         ui.showRemovedMessage(removed, tasks.size());
     }
 
-    private static void addTodo(ArrayList<Task> tasks, String args, Ui ui) throws JerylException {
+    private static void addTodo(TaskList tasks, String args, Ui ui) throws JerylException {
         String description = args.trim();
         if (description.isEmpty()) {
             throw new JerylException("OOPS!!! The description of a todo cannot be empty.");
@@ -89,7 +86,7 @@ public class Jeryl {
         ui.showAddedMessage(tasks.get(tasks.size() - 1), tasks.size());
     }
 
-    private static void addDeadline(ArrayList<Task> tasks, String args, Ui ui) throws JerylException {
+    private static void addDeadline(TaskList tasks, String args, Ui ui) throws JerylException {
         int byIndex = args.indexOf("/by ");
         if (byIndex == -1) {
             throw new JerylException("OOPS!!! A deadline must include \"/by <when>\".");
@@ -106,7 +103,7 @@ public class Jeryl {
         ui.showAddedMessage(tasks.get(tasks.size() - 1), tasks.size());
     }
 
-    private static void addEvent(ArrayList<Task> tasks, String args, Ui ui) throws JerylException {
+    private static void addEvent(TaskList tasks, String args, Ui ui) throws JerylException {
         int fromIndex = args.indexOf("/from ");
         int toIndex = args.indexOf("/to ");
         if (fromIndex == -1 || toIndex == -1 || toIndex < fromIndex) {
