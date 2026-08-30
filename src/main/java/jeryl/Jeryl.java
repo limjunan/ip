@@ -119,7 +119,8 @@ public class Jeryl {
         int fromIndex = args.indexOf("/from ");
         int toIndex = args.indexOf("/to ");
         if (fromIndex == -1 || toIndex == -1 || toIndex < fromIndex) {
-            throw new JerylException("OOPS!!! An event must include \"/from <start>\" and \"/to <end>\" in that order.");
+            throw new JerylException(
+                    "OOPS!!! An event must include \"/from <start>\" and \"/to <end>\" in that order.");
         }
         String description = args.substring(0, fromIndex).trim();
         String from = args.substring(fromIndex + 6, toIndex).trim();
