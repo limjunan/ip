@@ -1,17 +1,22 @@
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
 /**
- * A task that needs to be done before a specific date/time.
+ * A task that needs to be done before a specific date.
  */
 public class Deadline extends Task {
-    protected String by;
+    private static final DateTimeFormatter PRINT_FORMAT = DateTimeFormatter.ofPattern("MMM dd yyyy");
 
-    public Deadline(String description, String by) {
+    protected LocalDate by;
+
+    public Deadline(String description, LocalDate by) {
         super(description);
         this.by = by;
     }
 
     @Override
     public String toString() {
-        return "[D]" + super.toString() + " (by: " + by + ")";
+        return "[D]" + super.toString() + " (by: " + by.format(PRINT_FORMAT) + ")";
     }
 
     @Override

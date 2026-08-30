@@ -1,3 +1,5 @@
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -122,7 +124,7 @@ public class Jeryl {
         if (by.isEmpty()) {
             throw new JerylException("OOPS!!! The \"/by\" date/time of a deadline cannot be empty.");
         }
-        tasks.add(new Deadline(description, by));
+        tasks.add(new Deadline(description, parseDate(by)));
         printAddedMessage(tasks.get(tasks.size() - 1), tasks.size());
     }
 
@@ -141,8 +143,23 @@ public class Jeryl {
         if (from.isEmpty() || to.isEmpty()) {
             throw new JerylException("OOPS!!! The \"/from\" and \"/to\" date/time of an event cannot be empty.");
         }
-        tasks.add(new Event(description, from, to));
+        tasks.add(new Event(description, parseDate(from), parseDate(to)));
         printAddedMessage(tasks.get(tasks.size() - 1), tasks.size());
+    }
+
+    /**
+     * Parses a date string in yyyy-MM-dd format (e.g. 2019-10-15), as
+     * used by both the "/by" field of a deadline and the "/from"/"/to"
+     * fields of an event.
+     */
+    private static LocalDate parseDate(String dateString) throws JerylException {
+        try {
+            return LocalDate.parse(dateString);
+        } catch (DateTimeParseException e) {
+            throw new JerylException(
+                    "OOPS!!! Please give the date as yyyy-mm-dd, e.g. 2019-10-15. \""
+                            + dateString + "\" isn't in that format.");
+        }
     }
 
     /**

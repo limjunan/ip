@@ -5,6 +5,8 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -77,13 +79,13 @@ public class Storage {
             if (parts.length < 4) {
                 throw new JerylException("deadline is missing its \"by\" field");
             }
-            task = new Deadline(description, parts[3]);
+            task = new Deadline(description, parseDate(parts[3]));
             break;
         case "E":
             if (parts.length < 5) {
                 throw new JerylException("event is missing its \"from\"/\"to\" fields");
             }
-            task = new Event(description, parts[3], parts[4]);
+            task = new Event(description, parseDate(parts[3]), parseDate(parts[4]));
             break;
         default:
             throw new JerylException("unknown task type \"" + type + "\"");
@@ -92,6 +94,14 @@ public class Storage {
             task.markAsDone();
         }
         return task;
+    }
+
+    private LocalDate parseDate(String dateString) throws JerylException {
+        try {
+            return LocalDate.parse(dateString);
+        } catch (DateTimeParseException e) {
+            throw new JerylException("date \"" + dateString + "\" isn't in yyyy-mm-dd format");
+        }
     }
 
     /**
