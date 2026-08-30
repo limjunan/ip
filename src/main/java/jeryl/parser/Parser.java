@@ -1,3 +1,5 @@
+package jeryl.parser;
+
 /**
  * Deals with making sense of raw user input: splitting a line into a
  * command word and the remaining arguments.

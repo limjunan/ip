@@ -1,3 +1,5 @@
+package jeryl.parser;
+
 /**
  * The set of commands Jeryl understands. The keyword is the first
  * whitespace-separated word of the user's input.

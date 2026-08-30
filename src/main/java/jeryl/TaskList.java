@@ -1,4 +1,8 @@
+package jeryl;
+
 import java.util.ArrayList;
+
+import jeryl.task.Task;
 
 /**
  * Wraps the list of tasks currently tracked by the chatbot, and provides
