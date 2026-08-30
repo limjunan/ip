@@ -31,4 +31,12 @@ public class Task {
     public String toString() {
         return "[" + getStatusIcon() + "] " + description;
     }
+
+    /**
+     * Returns this task encoded as a single line for saving to disk, e.g.
+     * "T | 1 | read book". Subclasses append their own type-specific fields.
+     */
+    public String toFileString() {
+        return (isDone ? "1" : "0") + " | " + description;
+    }
 }
