@@ -6,8 +6,10 @@ import jeryl.TaskList;
 import jeryl.task.Task;
 
 /**
- * Deals with all interactions with the user: printing messages to the
- * console and reading the user's input.
+ * Builds the text of every message Jeryl shows the user, and reads raw
+ * command-line input for the CLI. Formatting is kept separate from how
+ * a message is actually displayed, so the same text can be printed to
+ * the console (CLI) or shown in a chat bubble (GUI).
  */
 public class Ui {
     private static final String BANNER = "     _                 _ \n"
@@ -24,14 +26,6 @@ public class Ui {
      */
     public Ui() {
         this.scanner = new Scanner(System.in);
-    }
-
-    /**
-     * Prints the app's banner and welcome greeting.
-     */
-    public void showWelcome() {
-        System.out.println(BANNER);
-        System.out.println("Hello! I'm Jeryl.\n" + "What can I do for you?");
     }
 
     /**
@@ -56,70 +50,68 @@ public class Ui {
     }
 
     /**
-     * Prints the farewell message shown when the user exits.
+     * Returns the app's banner and welcome greeting.
      */
-    public void showGoodbye() {
-        System.out.println("Bye. Hope to see you again soon!");
+    public String welcomeMessage() {
+        return BANNER + "\nHello! I'm Jeryl.\nWhat can I do for you?";
     }
 
     /**
-     * Prints an error message, e.g. from a caught JerylException.
+     * Returns the farewell message shown when the user exits.
      */
-    public void showError(String message) {
-        System.out.println(message);
+    public String goodbyeMessage() {
+        return "Bye. Hope to see you again soon!";
     }
 
     /**
-     * Prints every task in the list, numbered from 1.
+     * Returns every task in the list, numbered from 1, one per line.
      */
-    public void showTaskList(TaskList tasks) {
+    public String taskListMessage(TaskList tasks) {
+        StringBuilder message = new StringBuilder();
         for (int i = 0; i < tasks.size(); i++) {
-            System.out.println((i + 1) + "." + tasks.get(i));
+            if (i > 0) {
+                message.append('\n');
+            }
+            message.append(i + 1).append('.').append(tasks.get(i));
         }
+        return message.toString();
     }
 
     /**
-     * Prints the tasks matching a "find" search, under the required
+     * Returns the tasks matching a "find" search, under the required
      * header, numbered from 1.
      */
-    public void showMatchingTasks(TaskList matches) {
-        System.out.println("Here are the matching tasks in your list:");
-        showTaskList(matches);
+    public String matchingTasksMessage(TaskList matches) {
+        return "Here are the matching tasks in your list:\n" + taskListMessage(matches);
     }
 
     /**
-     * Prints confirmation that a task was added, along with the new
+     * Returns confirmation that a task was added, along with the new
      * total task count.
      */
-    public void showAddedMessage(Task task, int taskCount) {
-        System.out.println("Got it. I've added this task:");
-        System.out.println("  " + task);
-        System.out.println("Now you have " + taskCount + " tasks in the list.");
+    public String addedMessage(Task task, int taskCount) {
+        return "Got it. I've added this task:\n  " + task + "\nNow you have " + taskCount + " tasks in the list.";
     }
 
     /**
-     * Prints confirmation that a task was marked as done.
+     * Returns confirmation that a task was marked as done.
      */
-    public void showMarkedMessage(Task task) {
-        System.out.println("Nice! I've marked this task as done:");
-        System.out.println("  " + task);
+    public String markedMessage(Task task) {
+        return "Nice! I've marked this task as done:\n  " + task;
     }
 
     /**
-     * Prints confirmation that a task was marked as not done.
+     * Returns confirmation that a task was marked as not done.
      */
-    public void showUnmarkedMessage(Task task) {
-        System.out.println("OK, I've marked this task as not done yet:");
-        System.out.println("  " + task);
+    public String unmarkedMessage(Task task) {
+        return "OK, I've marked this task as not done yet:\n  " + task;
     }
 
     /**
-     * Prints confirmation that a task was removed, along with the new
+     * Returns confirmation that a task was removed, along with the new
      * total task count.
      */
-    public void showRemovedMessage(Task task, int taskCount) {
-        System.out.println("Noted. I've removed this task:");
-        System.out.println("  " + task);
-        System.out.println("Now you have " + taskCount + " tasks in the list.");
+    public String removedMessage(Task task, int taskCount) {
+        return "Noted. I've removed this task:\n  " + task + "\nNow you have " + taskCount + " tasks in the list.";
     }
 }

@@ -14,102 +14,141 @@ import jeryl.task.Todo;
 import jeryl.ui.Ui;
 
 /**
- * Entry point for the Jeryl chatbot: wires together the Ui, Storage, and
- * TaskList, and dispatches each parsed command to the handler that acts
- * on it.
+ * The Jeryl chatbot's core logic: given one line of user input, updates
+ * the task list (and saves it to disk) and returns the response text.
+ * Used by both the CLI loop in main() and the JavaFX GUI, so the two
+ * front ends stay behaviorally identical.
  */
 public class Jeryl {
     private static final String DATA_FILE_PATH = "./data/jeryl.txt";
 
+    private final Storage storage;
+    private final Ui ui;
+    private final TaskList tasks;
+
     /**
-     * Runs Jeryl's main read-parse-execute loop until the user says "bye".
+     * Creates a Jeryl instance backed by the default save file location.
+     */
+    public Jeryl() {
+        this(DATA_FILE_PATH);
+    }
+
+    /**
+     * Creates a Jeryl instance backed by the given save file location,
+     * loading any tasks already saved there.
+     */
+    public Jeryl(String filePath) {
+        this.ui = new Ui();
+        this.storage = new Storage(filePath);
+        this.tasks = new TaskList(storage.load());
+    }
+
+    /**
+     * Runs Jeryl's CLI read-parse-execute loop until the user says "bye".
      */
     public static void main(String[] args) {
-        Ui ui = new Ui();
-        ui.showWelcome();
+        new Jeryl().runCli();
+    }
 
-        Storage storage = new Storage(DATA_FILE_PATH);
-        TaskList tasks = new TaskList(storage.load());
-
+    private void runCli() {
+        System.out.println(ui.welcomeMessage());
         while (ui.hasNextCommand()) {
-            Parser.ParsedInput parsed = Parser.parse(ui.readCommand());
-            Command command = parsed.command();
-            String rest = parsed.arguments();
-
-            if (command == Command.BYE) {
+            String input = ui.readCommand();
+            System.out.println(getResponse(input));
+            if (isExit(input)) {
                 break;
-            }
-            try {
-                switch (command) {
-                case LIST:
-                    ui.showTaskList(tasks);
-                    break;
-                case MARK:
-                    markTask(tasks, rest, ui);
-                    storage.save(tasks.asArrayList());
-                    break;
-                case UNMARK:
-                    unmarkTask(tasks, rest, ui);
-                    storage.save(tasks.asArrayList());
-                    break;
-                case DELETE:
-                    deleteTask(tasks, rest, ui);
-                    storage.save(tasks.asArrayList());
-                    break;
-                case TODO:
-                    addTodo(tasks, rest, ui);
-                    storage.save(tasks.asArrayList());
-                    break;
-                case DEADLINE:
-                    addDeadline(tasks, rest, ui);
-                    storage.save(tasks.asArrayList());
-                    break;
-                case EVENT:
-                    addEvent(tasks, rest, ui);
-                    storage.save(tasks.asArrayList());
-                    break;
-                case FIND:
-                    findTasks(tasks, rest, ui);
-                    break;
-                default:
-                    throw new JerylException("OOPS!!! I'm sorry, but I don't know what that means :-(");
-                }
-            } catch (JerylException e) {
-                ui.showError(e.getMessage());
             }
         }
         ui.close();
-        ui.showGoodbye();
     }
 
-    private static void markTask(TaskList tasks, String args, Ui ui) throws JerylException {
+    /**
+     * Returns true if the given raw input is the "bye" command.
+     */
+    public boolean isExit(String input) {
+        return Parser.parse(input).command() == Command.BYE;
+    }
+
+    /**
+     * Returns Jeryl's welcome/greeting message, shown once at startup.
+     */
+    public String welcomeMessage() {
+        return ui.welcomeMessage();
+    }
+
+    /**
+     * Processes one line of raw user input and returns Jeryl's response
+     * text, updating the task list (and persisting it to disk) as a
+     * side effect where applicable. Any JerylException raised while
+     * handling the command is caught and its message returned as the
+     * response, rather than propagated.
+     */
+    public String getResponse(String input) {
+        Parser.ParsedInput parsed = Parser.parse(input);
+        Command command = parsed.command();
+        String args = parsed.arguments();
+
+        try {
+            switch (command) {
+            case LIST:
+                return ui.taskListMessage(tasks);
+            case MARK:
+                return withSave(markTask(args));
+            case UNMARK:
+                return withSave(unmarkTask(args));
+            case DELETE:
+                return withSave(deleteTask(args));
+            case TODO:
+                return withSave(addTodo(args));
+            case DEADLINE:
+                return withSave(addDeadline(args));
+            case EVENT:
+                return withSave(addEvent(args));
+            case FIND:
+                return findTasks(args);
+            case BYE:
+                return ui.goodbyeMessage();
+            default:
+                throw new JerylException("OOPS!!! I'm sorry, but I don't know what that means :-(");
+            }
+        } catch (JerylException e) {
+            return e.getMessage();
+        }
+    }
+
+    private String withSave(String response) {
+        storage.save(tasks.asArrayList());
+        return response;
+    }
+
+    private String markTask(String args) throws JerylException {
         int index = parseTaskIndex(args, "mark", tasks.size());
         tasks.get(index).markAsDone();
-        ui.showMarkedMessage(tasks.get(index));
+        return ui.markedMessage(tasks.get(index));
     }
 
-    private static void unmarkTask(TaskList tasks, String args, Ui ui) throws JerylException {
+    private String unmarkTask(String args) throws JerylException {
         int index = parseTaskIndex(args, "unmark", tasks.size());
         tasks.get(index).markAsNotDone();
-        ui.showUnmarkedMessage(tasks.get(index));
+        return ui.unmarkedMessage(tasks.get(index));
     }
 
-    private static void deleteTask(TaskList tasks, String args, Ui ui) throws JerylException {
+    private String deleteTask(String args) throws JerylException {
         int index = parseTaskIndex(args, "delete", tasks.size());
         Task removed = tasks.delete(index);
-        ui.showRemovedMessage(removed, tasks.size());
+        return ui.removedMessage(removed, tasks.size());
     }
 
-    private static void addTodo(TaskList tasks, String args, Ui ui) throws JerylException {
+    private String addTodo(String args) throws JerylException {
         String description = args.trim();
         if (description.isEmpty()) {
             throw new JerylException("OOPS!!! The description of a todo cannot be empty.");
         }
         tasks.add(new Todo(description));
-        ui.showAddedMessage(tasks.get(tasks.size() - 1), tasks.size());
+        return ui.addedMessage(tasks.get(tasks.size() - 1), tasks.size());
     }
 
-    private static void addDeadline(TaskList tasks, String args, Ui ui) throws JerylException {
+    private String addDeadline(String args) throws JerylException {
         int byIndex = args.indexOf("/by ");
         if (byIndex == -1) {
             throw new JerylException("OOPS!!! A deadline must include \"/by <when>\".");
@@ -123,10 +162,10 @@ public class Jeryl {
             throw new JerylException("OOPS!!! The \"/by\" date/time of a deadline cannot be empty.");
         }
         tasks.add(new Deadline(description, parseDate(by)));
-        ui.showAddedMessage(tasks.get(tasks.size() - 1), tasks.size());
+        return ui.addedMessage(tasks.get(tasks.size() - 1), tasks.size());
     }
 
-    private static void addEvent(TaskList tasks, String args, Ui ui) throws JerylException {
+    private String addEvent(String args) throws JerylException {
         int fromIndex = args.indexOf("/from ");
         int toIndex = args.indexOf("/to ");
         if (fromIndex == -1 || toIndex == -1 || toIndex < fromIndex) {
@@ -143,15 +182,15 @@ public class Jeryl {
             throw new JerylException("OOPS!!! The \"/from\" and \"/to\" date/time of an event cannot be empty.");
         }
         tasks.add(new Event(description, parseDate(from), parseDate(to)));
-        ui.showAddedMessage(tasks.get(tasks.size() - 1), tasks.size());
+        return ui.addedMessage(tasks.get(tasks.size() - 1), tasks.size());
     }
 
-    private static void findTasks(TaskList tasks, String args, Ui ui) throws JerylException {
+    private String findTasks(String args) throws JerylException {
         String keyword = args.trim();
         if (keyword.isEmpty()) {
             throw new JerylException("OOPS!!! Please specify a keyword to find.");
         }
-        ui.showMatchingTasks(tasks.find(keyword));
+        return ui.matchingTasksMessage(tasks.find(keyword));
     }
 
     /**
