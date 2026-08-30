@@ -19,6 +19,9 @@ public class Ui {
 
     private final Scanner scanner;
 
+    /**
+     * Creates a Ui that reads user input from standard input.
+     */
     public Ui() {
         this.scanner = new Scanner(System.in);
     }
@@ -52,36 +55,59 @@ public class Ui {
         scanner.close();
     }
 
+    /**
+     * Prints the farewell message shown when the user exits.
+     */
     public void showGoodbye() {
         System.out.println("Bye. Hope to see you again soon!");
     }
 
+    /**
+     * Prints an error message, e.g. from a caught JerylException.
+     */
     public void showError(String message) {
         System.out.println(message);
     }
 
+    /**
+     * Prints every task in the list, numbered from 1.
+     */
     public void showTaskList(TaskList tasks) {
         for (int i = 0; i < tasks.size(); i++) {
             System.out.println((i + 1) + "." + tasks.get(i));
         }
     }
 
+    /**
+     * Prints confirmation that a task was added, along with the new
+     * total task count.
+     */
     public void showAddedMessage(Task task, int taskCount) {
         System.out.println("Got it. I've added this task:");
         System.out.println("  " + task);
         System.out.println("Now you have " + taskCount + " tasks in the list.");
     }
 
+    /**
+     * Prints confirmation that a task was marked as done.
+     */
     public void showMarkedMessage(Task task) {
         System.out.println("Nice! I've marked this task as done:");
         System.out.println("  " + task);
     }
 
+    /**
+     * Prints confirmation that a task was marked as not done.
+     */
     public void showUnmarkedMessage(Task task) {
         System.out.println("OK, I've marked this task as not done yet:");
         System.out.println("  " + task);
     }
 
+    /**
+     * Prints confirmation that a task was removed, along with the new
+     * total task count.
+     */
     public void showRemovedMessage(Task task, int taskCount) {
         System.out.println("Noted. I've removed this task:");
         System.out.println("  " + task);

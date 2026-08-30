@@ -13,9 +13,17 @@ import jeryl.task.Task;
 import jeryl.task.Todo;
 import jeryl.ui.Ui;
 
+/**
+ * Entry point for the Jeryl chatbot: wires together the Ui, Storage, and
+ * TaskList, and dispatches each parsed command to the handler that acts
+ * on it.
+ */
 public class Jeryl {
     private static final String DATA_FILE_PATH = "./data/jeryl.txt";
 
+    /**
+     * Runs Jeryl's main read-parse-execute loop until the user says "bye".
+     */
     public static void main(String[] args) {
         Ui ui = new Ui();
         ui.showWelcome();

@@ -11,26 +11,45 @@ import jeryl.task.Task;
 public class TaskList {
     private final ArrayList<Task> tasks;
 
+    /**
+     * Creates an empty task list.
+     */
     public TaskList() {
         this.tasks = new ArrayList<>();
     }
 
+    /**
+     * Creates a task list backed by the given tasks, e.g. ones just
+     * loaded from disk.
+     */
     public TaskList(ArrayList<Task> tasks) {
         this.tasks = tasks;
     }
 
+    /**
+     * Appends a task to the end of the list.
+     */
     public void add(Task task) {
         tasks.add(task);
     }
 
+    /**
+     * Removes and returns the task at the given 0-based index.
+     */
     public Task delete(int index) {
         return tasks.remove(index);
     }
 
+    /**
+     * Returns the task at the given 0-based index.
+     */
     public Task get(int index) {
         return tasks.get(index);
     }
 
+    /**
+     * Returns the number of tasks currently in the list.
+     */
     public int size() {
         return tasks.size();
     }

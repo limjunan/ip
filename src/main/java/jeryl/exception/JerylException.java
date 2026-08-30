@@ -5,6 +5,9 @@ package jeryl.exception;
  * unknown command or a command missing required arguments.
  */
 public class JerylException extends Exception {
+    /**
+     * Creates a JerylException with a user-facing message.
+     */
     public JerylException(String message) {
         super(message);
     }

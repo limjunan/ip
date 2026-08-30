@@ -26,6 +26,10 @@ import jeryl.task.Todo;
 public class Storage {
     private final Path filePath;
 
+    /**
+     * Creates a Storage that reads from and writes to the given path,
+     * relative to the working directory the app is run from.
+     */
     public Storage(String filePath) {
         this.filePath = Paths.get(filePath);
     }
@@ -104,6 +108,10 @@ public class Storage {
         return task;
     }
 
+    /**
+     * Parses a yyyy-MM-dd date string as saved by Deadline/Event's
+     * toFileString, wrapping any parse failure as a JerylException.
+     */
     private LocalDate parseDate(String dateString) throws JerylException {
         try {
             return LocalDate.parse(dateString);
