@@ -1,12 +1,16 @@
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
 /**
- * A task that starts at a specific date/time and ends at a specific
- * date/time.
+ * A task that starts on a specific date and ends on a specific date.
  */
 public class Event extends Task {
-    protected String from;
-    protected String to;
+    private static final DateTimeFormatter PRINT_FORMAT = DateTimeFormatter.ofPattern("MMM dd yyyy");
 
-    public Event(String description, String from, String to) {
+    protected LocalDate from;
+    protected LocalDate to;
+
+    public Event(String description, LocalDate from, LocalDate to) {
         super(description);
         this.from = from;
         this.to = to;
@@ -14,7 +18,8 @@ public class Event extends Task {
 
     @Override
     public String toString() {
-        return "[E]" + super.toString() + " (from: " + from + " to: " + to + ")";
+        return "[E]" + super.toString() + " (from: " + from.format(PRINT_FORMAT)
+                + " to: " + to.format(PRINT_FORMAT) + ")";
     }
 
     @Override
