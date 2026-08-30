@@ -1,4 +1,9 @@
+package jeryl.ui;
+
 import java.util.Scanner;
+
+import jeryl.TaskList;
+import jeryl.task.Task;
 
 /**
  * Deals with all interactions with the user: printing messages to the

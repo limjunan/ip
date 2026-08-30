@@ -1,5 +1,17 @@
+package jeryl;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+
+import jeryl.exception.JerylException;
+import jeryl.parser.Command;
+import jeryl.parser.Parser;
+import jeryl.storage.Storage;
+import jeryl.task.Deadline;
+import jeryl.task.Event;
+import jeryl.task.Task;
+import jeryl.task.Todo;
+import jeryl.ui.Ui;
 
 public class Jeryl {
     private static final String DATA_FILE_PATH = "./data/jeryl.txt";

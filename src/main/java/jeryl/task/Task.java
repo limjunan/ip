@@ -1,3 +1,5 @@
+package jeryl.task;
+
 /**
  * Represents a single task tracked by the chatbot, with a description
  * and a completion status. Subclasses add the type-specific details
