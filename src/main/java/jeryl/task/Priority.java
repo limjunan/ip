@@ -26,10 +26,10 @@ public enum Priority {
      */
     public String getTag() {
         return switch (this) {
-        case HIGH -> "[H]";
-        case MEDIUM -> "[M]";
-        case LOW -> "[L]";
-        case NONE -> "";
+            case HIGH -> "[H]";
+            case MEDIUM -> "[M]";
+            case LOW -> "[L]";
+            case NONE -> "";
         };
     }
 }

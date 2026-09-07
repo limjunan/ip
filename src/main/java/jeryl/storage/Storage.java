@@ -85,32 +85,32 @@ public class Storage {
 
         Task task;
         switch (type) {
-        case "T":
-            task = parts.length >= 4
-                    ? new Todo(description, parsePriority(parts[3]))
-                    : new Todo(description);
-            break;
-        case "D":
-            if (parts.length < 4) {
-                throw new JerylException("deadline is missing its \"by\" field");
-            }
-            LocalDate by = parseDate(parts[3]);
-            task = parts.length >= 5
-                    ? new Deadline(description, by, parsePriority(parts[4]))
-                    : new Deadline(description, by);
-            break;
-        case "E":
-            if (parts.length < 5) {
-                throw new JerylException("event is missing its \"from\"/\"to\" fields");
-            }
-            LocalDate from = parseDate(parts[3]);
-            LocalDate to = parseDate(parts[4]);
-            task = parts.length >= 6
-                    ? new Event(description, from, to, parsePriority(parts[5]))
-                    : new Event(description, from, to);
-            break;
-        default:
-            throw new JerylException("unknown task type \"" + type + "\"");
+            case "T":
+                task = parts.length >= 4
+                        ? new Todo(description, parsePriority(parts[3]))
+                        : new Todo(description);
+                break;
+            case "D":
+                if (parts.length < 4) {
+                    throw new JerylException("deadline is missing its \"by\" field");
+                }
+                LocalDate by = parseDate(parts[3]);
+                task = parts.length >= 5
+                        ? new Deadline(description, by, parsePriority(parts[4]))
+                        : new Deadline(description, by);
+                break;
+            case "E":
+                if (parts.length < 5) {
+                    throw new JerylException("event is missing its \"from\"/\"to\" fields");
+                }
+                LocalDate from = parseDate(parts[3]);
+                LocalDate to = parseDate(parts[4]);
+                task = parts.length >= 6
+                        ? new Event(description, from, to, parsePriority(parts[5]))
+                        : new Event(description, from, to);
+                break;
+            default:
+                throw new JerylException("unknown task type \"" + type + "\"");
         }
         assert task != null : "task should have been assigned or an exception thrown by now";
         if (isDone) {

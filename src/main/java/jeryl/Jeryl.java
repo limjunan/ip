@@ -91,26 +91,26 @@ public class Jeryl {
 
         try {
             switch (command) {
-            case LIST:
-                return ui.taskListMessage(tasks);
-            case MARK:
-                return withSave(markTask(args));
-            case UNMARK:
-                return withSave(unmarkTask(args));
-            case DELETE:
-                return withSave(deleteTask(args));
-            case TODO:
-                return withSave(addTodo(args));
-            case DEADLINE:
-                return withSave(addDeadline(args));
-            case EVENT:
-                return withSave(addEvent(args));
-            case FIND:
-                return findTasks(args);
-            case BYE:
-                return ui.goodbyeMessage();
-            default:
-                throw new JerylException("OOPS!!! I'm sorry, but I don't know what that means :-(");
+                case LIST:
+                    return ui.taskListMessage(tasks);
+                case MARK:
+                    return withSave(markTask(args));
+                case UNMARK:
+                    return withSave(unmarkTask(args));
+                case DELETE:
+                    return withSave(deleteTask(args));
+                case TODO:
+                    return withSave(addTodo(args));
+                case DEADLINE:
+                    return withSave(addDeadline(args));
+                case EVENT:
+                    return withSave(addEvent(args));
+                case FIND:
+                    return findTasks(args);
+                case BYE:
+                    return ui.goodbyeMessage();
+                default:
+                    throw new JerylException("OOPS!!! I'm sorry, but I don't know what that means :-(");
             }
         } catch (JerylException e) {
             return e.getMessage();

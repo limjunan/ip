@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'application'
+    id 'checkstyle'
     id 'com.gradleup.shadow' version '9.5.1'
 }
 
@@ -44,6 +45,10 @@ dependencies {
     implementation "org.openjfx:javafx-controls:${javaFxVersion}:${javaFxClassifier}"
     implementation "org.openjfx:javafx-fxml:${javaFxVersion}:${javaFxClassifier}"
     implementation "org.openjfx:javafx-graphics:${javaFxVersion}:${javaFxClassifier}"
+}
+
+checkstyle {
+    toolVersion = '14.1.0'
 }
 
 test {
