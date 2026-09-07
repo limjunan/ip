@@ -20,6 +20,8 @@ public class Parser {
         int spaceIndex = input.indexOf(' ');
         String keyword = spaceIndex == -1 ? input : input.substring(0, spaceIndex);
         String arguments = spaceIndex == -1 ? "" : input.substring(spaceIndex + 1);
-        return new ParsedInput(Command.fromKeyword(keyword), arguments);
+        Command command = Command.fromKeyword(keyword);
+        assert command != null : "Command.fromKeyword should always return a command, falling back to UNKNOWN";
+        return new ParsedInput(command, arguments);
     }
 }

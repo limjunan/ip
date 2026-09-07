@@ -23,6 +23,7 @@ public class TaskList {
      * loaded from disk.
      */
     public TaskList(ArrayList<Task> tasks) {
+        assert tasks != null : "backing list passed to TaskList must not be null";
         this.tasks = tasks;
     }
 
@@ -66,6 +67,7 @@ public class TaskList {
                 matches.add(task);
             }
         }
+        assert matches.size() <= tasks.size() : "find should never return more matches than the tasks searched";
         return new TaskList(matches);
     }
 
