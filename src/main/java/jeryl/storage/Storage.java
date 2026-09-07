@@ -102,6 +102,7 @@ public class Storage {
         default:
             throw new JerylException("unknown task type \"" + type + "\"");
         }
+        assert task != null : "task should have been assigned or an exception thrown by now";
         if (isDone) {
             task.markAsDone();
         }
