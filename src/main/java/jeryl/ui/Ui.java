@@ -1,6 +1,8 @@
 package jeryl.ui;
 
 import java.util.Scanner;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import jeryl.TaskList;
 import jeryl.task.Task;
@@ -67,14 +69,9 @@ public class Ui {
      * Returns every task in the list, numbered from 1, one per line.
      */
     public String taskListMessage(TaskList tasks) {
-        StringBuilder message = new StringBuilder();
-        for (int i = 0; i < tasks.size(); i++) {
-            if (i > 0) {
-                message.append('\n');
-            }
-            message.append(i + 1).append('.').append(tasks.get(i));
-        }
-        return message.toString();
+        return IntStream.range(0, tasks.size())
+                .mapToObj(i -> (i + 1) + "." + tasks.get(i))
+                .collect(Collectors.joining("\n"));
     }
 
     /**

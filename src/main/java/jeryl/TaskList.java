@@ -1,6 +1,7 @@
 package jeryl;
 
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 import jeryl.task.Task;
 
@@ -59,13 +60,10 @@ public class TaskList {
      * (case-insensitive), in their original order.
      */
     public TaskList find(String keyword) {
-        ArrayList<Task> matches = new ArrayList<>();
         String lowerKeyword = keyword.toLowerCase();
-        for (Task task : tasks) {
-            if (task.getDescription().toLowerCase().contains(lowerKeyword)) {
-                matches.add(task);
-            }
-        }
+        ArrayList<Task> matches = tasks.stream()
+                .filter(task -> task.getDescription().toLowerCase().contains(lowerKeyword))
+                .collect(Collectors.toCollection(ArrayList::new));
         return new TaskList(matches);
     }
 
