@@ -8,13 +8,23 @@ package jeryl.task;
 public class Task {
     protected String description;
     protected boolean isDone;
+    protected Priority priority;
 
     /**
-     * Creates a not-yet-done task with the given description.
+     * Creates a not-yet-done task with the given description and no
+     * priority set.
      */
     public Task(String description) {
+        this(description, Priority.NONE);
+    }
+
+    /**
+     * Creates a not-yet-done task with the given description and priority.
+     */
+    public Task(String description, Priority priority) {
         this.description = description;
         this.isDone = false;
+        this.priority = priority;
     }
 
     /**
@@ -22,6 +32,14 @@ public class Task {
      */
     public String getDescription() {
         return description;
+    }
+
+    /**
+     * Returns this task's priority tag as shown in the task listing,
+     * e.g. "[H]", or an empty string if no priority is set.
+     */
+    protected String getPriorityTag() {
+        return priority.getTag();
     }
 
     /**
@@ -56,5 +74,17 @@ public class Task {
      */
     public String toFileString() {
         return (isDone ? "1" : "0") + " | " + description;
+    }
+
+    /**
+     * Appends the priority field to a fully-built file line, e.g. turning
+     * "T | 0 | read book" into "T | 0 | read book | HIGH". Subclasses call
+     * this last, after appending their own type-specific fields, so the
+     * priority field is always the final field in the line. Returns the
+     * line unchanged if no priority is set, so old save files (with no
+     * priority field at all) stay in the same format they were written in.
+     */
+    protected String withPriority(String line) {
+        return priority == Priority.NONE ? line : line + " | " + priority;
     }
 }

@@ -5,19 +5,27 @@ package jeryl.task;
  */
 public class Todo extends Task {
     /**
-     * Creates a not-yet-done todo with the given description.
+     * Creates a not-yet-done todo with the given description and no
+     * priority set.
      */
     public Todo(String description) {
         super(description);
     }
 
+    /**
+     * Creates a not-yet-done todo with the given description and priority.
+     */
+    public Todo(String description, Priority priority) {
+        super(description, priority);
+    }
+
     @Override
     public String toString() {
-        return "[T]" + super.toString();
+        return getPriorityTag() + "[T]" + super.toString();
     }
 
     @Override
     public String toFileString() {
-        return "T | " + super.toFileString();
+        return withPriority("T | " + super.toFileString());
     }
 }
