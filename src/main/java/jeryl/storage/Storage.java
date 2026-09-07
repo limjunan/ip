@@ -84,23 +84,23 @@ public class Storage {
 
         Task task;
         switch (type) {
-        case "T":
-            task = new Todo(description);
-            break;
-        case "D":
-            if (parts.length < 4) {
-                throw new JerylException("deadline is missing its \"by\" field");
-            }
-            task = new Deadline(description, parseDate(parts[3]));
-            break;
-        case "E":
-            if (parts.length < 5) {
-                throw new JerylException("event is missing its \"from\"/\"to\" fields");
-            }
-            task = new Event(description, parseDate(parts[3]), parseDate(parts[4]));
-            break;
-        default:
-            throw new JerylException("unknown task type \"" + type + "\"");
+            case "T":
+                task = new Todo(description);
+                break;
+            case "D":
+                if (parts.length < 4) {
+                    throw new JerylException("deadline is missing its \"by\" field");
+                }
+                task = new Deadline(description, parseDate(parts[3]));
+                break;
+            case "E":
+                if (parts.length < 5) {
+                    throw new JerylException("event is missing its \"from\"/\"to\" fields");
+                }
+                task = new Event(description, parseDate(parts[3]), parseDate(parts[4]));
+                break;
+            default:
+                throw new JerylException("unknown task type \"" + type + "\"");
         }
         assert task != null : "task should have been assigned or an exception thrown by now";
         if (isDone) {
