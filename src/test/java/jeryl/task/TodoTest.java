@@ -30,4 +30,28 @@ public class TodoTest {
         todo.markAsDone();
         assertEquals("T | 1 | read book", todo.toFileString());
     }
+
+    @Test
+    public void toString_highPriority_showsPriorityTagBeforeTypeTag() {
+        Todo todo = new Todo("read book", Priority.HIGH);
+        assertEquals("[H][T][ ] read book", todo.toString());
+    }
+
+    @Test
+    public void toString_noPriority_showsNoPriorityTag() {
+        Todo todo = new Todo("read book", Priority.NONE);
+        assertEquals("[T][ ] read book", todo.toString());
+    }
+
+    @Test
+    public void toFileString_withPriority_appendsPriorityAsFinalField() {
+        Todo todo = new Todo("read book", Priority.LOW);
+        assertEquals("T | 0 | read book | LOW", todo.toFileString());
+    }
+
+    @Test
+    public void toFileString_noPriority_omitsPriorityField() {
+        Todo todo = new Todo("read book", Priority.NONE);
+        assertEquals("T | 0 | read book", todo.toFileString());
+    }
 }

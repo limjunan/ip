@@ -15,6 +15,7 @@ import java.util.Scanner;
 import jeryl.exception.JerylException;
 import jeryl.task.Deadline;
 import jeryl.task.Event;
+import jeryl.task.Priority;
 import jeryl.task.Task;
 import jeryl.task.Todo;
 
@@ -85,19 +86,28 @@ public class Storage {
         Task task;
         switch (type) {
         case "T":
-            task = new Todo(description);
+            task = parts.length >= 4
+                    ? new Todo(description, parsePriority(parts[3]))
+                    : new Todo(description);
             break;
         case "D":
             if (parts.length < 4) {
                 throw new JerylException("deadline is missing its \"by\" field");
             }
-            task = new Deadline(description, parseDate(parts[3]));
+            LocalDate by = parseDate(parts[3]);
+            task = parts.length >= 5
+                    ? new Deadline(description, by, parsePriority(parts[4]))
+                    : new Deadline(description, by);
             break;
         case "E":
             if (parts.length < 5) {
                 throw new JerylException("event is missing its \"from\"/\"to\" fields");
             }
-            task = new Event(description, parseDate(parts[3]), parseDate(parts[4]));
+            LocalDate from = parseDate(parts[3]);
+            LocalDate to = parseDate(parts[4]);
+            task = parts.length >= 6
+                    ? new Event(description, from, to, parsePriority(parts[5]))
+                    : new Event(description, from, to);
             break;
         default:
             throw new JerylException("unknown task type \"" + type + "\"");
@@ -107,6 +117,18 @@ public class Storage {
             task.markAsDone();
         }
         return task;
+    }
+
+    /**
+     * Parses a priority field as saved by Task's toFileString (the enum
+     * name, e.g. "HIGH"), wrapping any parse failure as a JerylException.
+     */
+    private Priority parsePriority(String priorityString) throws JerylException {
+        try {
+            return Priority.valueOf(priorityString);
+        } catch (IllegalArgumentException e) {
+            throw new JerylException("unknown priority \"" + priorityString + "\"");
+        }
     }
 
     /**

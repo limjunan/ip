@@ -9,20 +9,30 @@ public class Deadline extends Task {
     protected LocalDate by;
 
     /**
-     * Creates a not-yet-done deadline task due on the given date.
+     * Creates a not-yet-done deadline task due on the given date, with no
+     * priority set.
      */
     public Deadline(String description, LocalDate by) {
         super(description);
         this.by = by;
     }
 
+    /**
+     * Creates a not-yet-done deadline task due on the given date, with the
+     * given priority.
+     */
+    public Deadline(String description, LocalDate by, Priority priority) {
+        super(description, priority);
+        this.by = by;
+    }
+
     @Override
     public String toString() {
-        return "[D]" + super.toString() + " (by: " + by.format(DateFormats.DISPLAY) + ")";
+        return getPriorityTag() + "[D]" + super.toString() + " (by: " + by.format(DateFormats.DISPLAY) + ")";
     }
 
     @Override
     public String toFileString() {
-        return "D | " + super.toFileString() + " | " + by;
+        return withPriority("D | " + super.toFileString() + " | " + by);
     }
 }

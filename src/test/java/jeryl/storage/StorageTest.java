@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import jeryl.task.Deadline;
+import jeryl.task.Priority;
 import jeryl.task.Task;
 import jeryl.task.Todo;
 
@@ -52,6 +53,32 @@ public class StorageTest {
         storage.save(new ArrayList<>());
 
         assertTrue(Files.exists(filePath));
+    }
+
+    @Test
+    public void saveThenLoad_taskWithPriority_roundTripsPriority() {
+        Storage storage = new Storage(tempDir.resolve("data/jeryl.txt").toString());
+
+        ArrayList<Task> original = new ArrayList<>();
+        original.add(new Todo("read book", Priority.HIGH));
+
+        storage.save(original);
+        ArrayList<Task> loaded = storage.load();
+
+        assertEquals(1, loaded.size());
+        assertEquals("[H][T][ ] read book", loaded.get(0).toString());
+    }
+
+    @Test
+    public void load_lineWithoutPriorityField_defaultsToNoPriority() throws IOException {
+        Path filePath = tempDir.resolve("jeryl.txt");
+        Files.writeString(filePath, "T | 0 | old save file task\n");
+
+        Storage storage = new Storage(filePath.toString());
+        ArrayList<Task> loaded = storage.load();
+
+        assertEquals(1, loaded.size());
+        assertEquals("[T][ ] old save file task", loaded.get(0).toString());
     }
 
     @Test

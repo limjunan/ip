@@ -9,6 +9,7 @@ import jeryl.parser.Parser;
 import jeryl.storage.Storage;
 import jeryl.task.Deadline;
 import jeryl.task.Event;
+import jeryl.task.Priority;
 import jeryl.task.Task;
 import jeryl.task.Todo;
 import jeryl.ui.Ui;
@@ -140,49 +141,79 @@ public class Jeryl {
     }
 
     private String addTodo(String args) throws JerylException {
-        String description = args.trim();
+        ArgsAndPriority parsed = extractPriority(args);
+        String description = parsed.args().trim();
         if (description.isEmpty()) {
             throw new JerylException("OOPS!!! The description of a todo cannot be empty.");
         }
-        tasks.add(new Todo(description));
+        tasks.add(new Todo(description, parsed.priority()));
         return ui.addedMessage(tasks.get(tasks.size() - 1), tasks.size());
     }
 
     private String addDeadline(String args) throws JerylException {
-        int byIndex = args.indexOf("/by ");
+        ArgsAndPriority parsed = extractPriority(args);
+        String remaining = parsed.args();
+        int byIndex = remaining.indexOf("/by ");
         if (byIndex == -1) {
             throw new JerylException("OOPS!!! A deadline must include \"/by <when>\".");
         }
-        String description = args.substring(0, byIndex).trim();
-        String by = args.substring(byIndex + 4).trim();
+        String description = remaining.substring(0, byIndex).trim();
+        String by = remaining.substring(byIndex + 4).trim();
         if (description.isEmpty()) {
             throw new JerylException("OOPS!!! The description of a deadline cannot be empty.");
         }
         if (by.isEmpty()) {
             throw new JerylException("OOPS!!! The \"/by\" date/time of a deadline cannot be empty.");
         }
-        tasks.add(new Deadline(description, parseDate(by)));
+        tasks.add(new Deadline(description, parseDate(by), parsed.priority()));
         return ui.addedMessage(tasks.get(tasks.size() - 1), tasks.size());
     }
 
     private String addEvent(String args) throws JerylException {
-        int fromIndex = args.indexOf("/from ");
-        int toIndex = args.indexOf("/to ");
+        ArgsAndPriority parsed = extractPriority(args);
+        String remaining = parsed.args();
+        int fromIndex = remaining.indexOf("/from ");
+        int toIndex = remaining.indexOf("/to ");
         if (fromIndex == -1 || toIndex == -1 || toIndex < fromIndex) {
             throw new JerylException(
                     "OOPS!!! An event must include \"/from <start>\" and \"/to <end>\" in that order.");
         }
-        String description = args.substring(0, fromIndex).trim();
-        String from = args.substring(fromIndex + 6, toIndex).trim();
-        String to = args.substring(toIndex + 4).trim();
+        String description = remaining.substring(0, fromIndex).trim();
+        String from = remaining.substring(fromIndex + 6, toIndex).trim();
+        String to = remaining.substring(toIndex + 4).trim();
         if (description.isEmpty()) {
             throw new JerylException("OOPS!!! The description of an event cannot be empty.");
         }
         if (from.isEmpty() || to.isEmpty()) {
             throw new JerylException("OOPS!!! The \"/from\" and \"/to\" date/time of an event cannot be empty.");
         }
-        tasks.add(new Event(description, parseDate(from), parseDate(to)));
+        tasks.add(new Event(description, parseDate(from), parseDate(to), parsed.priority()));
         return ui.addedMessage(tasks.get(tasks.size() - 1), tasks.size());
+    }
+
+    /**
+     * A command's argument text with any trailing "/priority <level>" flag
+     * pulled out, along with the Priority it specified (NONE if the flag
+     * wasn't present).
+     */
+    private record ArgsAndPriority(String args, Priority priority) {
+    }
+
+    /**
+     * Extracts an optional "/priority <level>" flag from a command's raw
+     * argument text, wherever it appears. Returns the argument text with
+     * the flag removed (so existing "/by"/"/from"/"/to" parsing is
+     * unaffected) and the Priority it specified, or Priority.NONE if the
+     * flag wasn't present.
+     */
+    private static ArgsAndPriority extractPriority(String args) throws JerylException {
+        int priorityIndex = args.indexOf("/priority ");
+        if (priorityIndex == -1) {
+            return new ArgsAndPriority(args, Priority.NONE);
+        }
+        String before = args.substring(0, priorityIndex);
+        String level = args.substring(priorityIndex + "/priority ".length()).trim();
+        return new ArgsAndPriority(before.trim(), Priority.fromKeyword(level));
     }
 
     private String findTasks(String args) throws JerylException {
