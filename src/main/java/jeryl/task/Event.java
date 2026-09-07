@@ -1,14 +1,11 @@
 package jeryl.task;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
 /**
  * A task that starts on a specific date and ends on a specific date.
  */
 public class Event extends Task {
-    private static final DateTimeFormatter PRINT_FORMAT = DateTimeFormatter.ofPattern("MMM dd yyyy");
-
     protected LocalDate from;
     protected LocalDate to;
 
@@ -24,8 +21,8 @@ public class Event extends Task {
 
     @Override
     public String toString() {
-        return "[E]" + super.toString() + " (from: " + from.format(PRINT_FORMAT)
-                + " to: " + to.format(PRINT_FORMAT) + ")";
+        return "[E]" + super.toString() + " (from: " + from.format(DateFormats.DISPLAY)
+                + " to: " + to.format(DateFormats.DISPLAY) + ")";
     }
 
     @Override
