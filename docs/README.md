@@ -103,8 +103,8 @@ Example: `bye`
 
 ## Errors
 
-If a command is malformed — an unknown command word, a missing or invalid date, a task number that doesn't exist, and so on — Jeryl shows an explanatory `OOPS!!!` message instead of crashing, and your task list is left unchanged. Just fix the command and try again.
+If a command is malformed (an unknown command word, a missing or invalid date, a task number that doesn't exist, and so on), Jeryl shows an explanatory `OOPS!!!` message instead of crashing, and your task list is left unchanged. Just fix the command and try again.
 
 ## Saving the data
 
-Jeryl saves all your tasks automatically to `data/jeryl.txt` after every change — there's no save command, and no need to manually save before exiting.
+Jeryl saves all your tasks automatically to `data/jeryl.txt` after every change, so there's no save command, and no need to manually save before exiting.
