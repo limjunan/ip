@@ -153,6 +153,7 @@ public class Jeryl {
     private String addDeadline(String args) throws JerylException {
         ArgsAndPriority parsed = extractPriority(args);
         String remaining = parsed.args();
+        requireNoDuplicateFlag(remaining, "/by ");
         int byIndex = remaining.indexOf("/by ");
         if (byIndex == -1) {
             throw new JerylException("OOPS!!! A deadline must include \"/by <when>\".");
@@ -172,6 +173,8 @@ public class Jeryl {
     private String addEvent(String args) throws JerylException {
         ArgsAndPriority parsed = extractPriority(args);
         String remaining = parsed.args();
+        requireNoDuplicateFlag(remaining, "/from ");
+        requireNoDuplicateFlag(remaining, "/to ");
         int fromIndex = remaining.indexOf("/from ");
         int toIndex = remaining.indexOf("/to ");
         if (fromIndex == -1 || toIndex == -1 || toIndex < fromIndex) {
@@ -187,8 +190,26 @@ public class Jeryl {
         if (from.isEmpty() || to.isEmpty()) {
             throw new JerylException("OOPS!!! The \"/from\" and \"/to\" date/time of an event cannot be empty.");
         }
-        tasks.add(new Event(description, parseDate(from), parseDate(to), parsed.priority()));
+        LocalDate fromDate = parseDate(from);
+        LocalDate toDate = parseDate(to);
+        if (!toDate.isAfter(fromDate)) {
+            throw new JerylException("OOPS!!! An event's \"/to\" date must be after its \"/from\" date.");
+        }
+        tasks.add(new Event(description, fromDate, toDate, parsed.priority()));
         return ui.addedMessage(tasks.get(tasks.size() - 1), tasks.size());
+    }
+
+    /**
+     * Rejects argument text that repeats the given flag (e.g. "/by ") more
+     * than once, since only the first occurrence would otherwise be used
+     * and the rest silently swallowed into the description.
+     */
+    private static void requireNoDuplicateFlag(String args, String flag) throws JerylException {
+        int firstIndex = args.indexOf(flag);
+        if (firstIndex != -1 && args.indexOf(flag, firstIndex + flag.length()) != -1) {
+            throw new JerylException(
+                    "OOPS!!! Please specify \"" + flag.trim() + "\" only once.");
+        }
     }
 
     /**
@@ -207,12 +228,18 @@ public class Jeryl {
      * flag wasn't present.
      */
     private static ArgsAndPriority extractPriority(String args) throws JerylException {
-        int priorityIndex = args.indexOf("/priority ");
+        int priorityIndex = args.indexOf("/priority");
         if (priorityIndex == -1) {
             return new ArgsAndPriority(args, Priority.NONE);
         }
+        if (args.indexOf("/priority", priorityIndex + "/priority".length()) != -1) {
+            throw new JerylException("OOPS!!! Please specify \"/priority\" only once.");
+        }
         String before = args.substring(0, priorityIndex);
-        String level = args.substring(priorityIndex + "/priority ".length()).trim();
+        String level = args.substring(priorityIndex + "/priority".length()).trim();
+        if (level.isEmpty()) {
+            throw new JerylException("OOPS!!! The \"/priority\" flag needs a level: high, medium, or low.");
+        }
         return new ArgsAndPriority(before.trim(), Priority.fromKeyword(level));
     }
 

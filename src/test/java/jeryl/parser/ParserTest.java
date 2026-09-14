@@ -33,4 +33,18 @@ public class ParserTest {
         // Only the first space is the separator; the rest stays in arguments.
         assertEquals(" 3", parsed.arguments());
     }
+
+    @Test
+    public void parse_leadingAndTrailingWhitespace_isStrippedBeforeSplitting() {
+        Parser.ParsedInput parsed = Parser.parse("  todo read book  ");
+        assertEquals(Command.TODO, parsed.command());
+        assertEquals("read book", parsed.arguments());
+    }
+
+    @Test
+    public void parse_wholeInputIsWhitespace_returnsUnknownCommand() {
+        Parser.ParsedInput parsed = Parser.parse("   ");
+        assertEquals(Command.UNKNOWN, parsed.command());
+        assertEquals("", parsed.arguments());
+    }
 }
