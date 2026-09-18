@@ -6,12 +6,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
-import javafx.scene.image.PixelWriter;
-import javafx.scene.image.WritableImage;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
 /**
@@ -20,8 +16,6 @@ import javafx.util.Duration;
  * getResponse(String).
  */
 public class MainWindow extends AnchorPane {
-    private static final int AVATAR_SIZE = 100;
-
     @FXML
     private ScrollPane scrollPane;
     @FXML
@@ -32,9 +26,6 @@ public class MainWindow extends AnchorPane {
     private Button sendButton;
 
     private Jeryl jeryl;
-
-    private final Image userImage = createAvatar(Color.web("#5b8def"));
-    private final Image jerylImage = createAvatar(Color.web("#3aa17e"));
 
     @FXML
     private void initialize() {
@@ -47,8 +38,7 @@ public class MainWindow extends AnchorPane {
      */
     public void setJeryl(Jeryl jeryl) {
         this.jeryl = jeryl;
-        dialogContainer.getChildren().add(
-                DialogBox.getJerylDialog(jeryl.welcomeMessage(), jerylImage));
+        dialogContainer.getChildren().add(DialogBox.getJerylDialog(jeryl.welcomeMessage()));
     }
 
     /**
@@ -62,10 +52,10 @@ public class MainWindow extends AnchorPane {
         if (input.isBlank()) {
             return;
         }
-        String response = jeryl.getResponse(input);
+        Jeryl.Response response = jeryl.respond(input);
         dialogContainer.getChildren().addAll(
-                DialogBox.getUserDialog(input, userImage),
-                DialogBox.getJerylDialog(response, jerylImage));
+                DialogBox.getUserDialog(input),
+                DialogBox.getJerylDialog(response));
         userInput.clear();
 
         if (jeryl.isExit(input)) {
@@ -75,24 +65,5 @@ public class MainWindow extends AnchorPane {
             delay.setOnFinished(event -> Platform.exit());
             delay.play();
         }
-    }
-
-    /**
-     * Draws a simple solid-colored circle as a placeholder avatar, so
-     * the GUI doesn't depend on external image assets.
-     */
-    private static Image createAvatar(Color color) {
-        WritableImage image = new WritableImage(AVATAR_SIZE, AVATAR_SIZE);
-        PixelWriter writer = image.getPixelWriter();
-        double radius = AVATAR_SIZE / 2.0;
-        for (int y = 0; y < AVATAR_SIZE; y++) {
-            for (int x = 0; x < AVATAR_SIZE; x++) {
-                double dx = x - radius + 0.5;
-                double dy = y - radius + 0.5;
-                boolean insideCircle = dx * dx + dy * dy <= radius * radius;
-                writer.setColor(x, y, insideCircle ? color : Color.TRANSPARENT);
-            }
-        }
-        return image;
     }
 }

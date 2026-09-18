@@ -78,6 +78,14 @@ public class Jeryl {
     }
 
     /**
+     * Jeryl's reply to one line of user input: the text to show, and
+     * whether it's an error message (so the GUI can style it
+     * differently) rather than a normal response.
+     */
+    public record Response(String text, boolean isError) {
+    }
+
+    /**
      * Processes one line of raw user input and returns Jeryl's response
      * text, updating the task list (and persisting it to disk) as a
      * side effect where applicable. Any JerylException raised while
@@ -85,6 +93,14 @@ public class Jeryl {
      * response, rather than propagated.
      */
     public String getResponse(String input) {
+        return respond(input).text();
+    }
+
+    /**
+     * Like {@link #getResponse}, but also reports whether the reply is
+     * an error message.
+     */
+    public Response respond(String input) {
         Parser.ParsedInput parsed = Parser.parse(input);
         Command command = parsed.command();
         String args = parsed.arguments();
@@ -92,28 +108,29 @@ public class Jeryl {
         try {
             switch (command) {
                 case LIST:
-                    return ui.taskListMessage(tasks);
+                    return new Response(ui.taskListMessage(tasks), false);
                 case MARK:
-                    return withSave(markTask(args));
+                    return new Response(withSave(markTask(args)), false);
                 case UNMARK:
-                    return withSave(unmarkTask(args));
+                    return new Response(withSave(unmarkTask(args)), false);
                 case DELETE:
-                    return withSave(deleteTask(args));
+                    return new Response(withSave(deleteTask(args)), false);
                 case TODO:
-                    return withSave(addTodo(args));
+                    return new Response(withSave(addTodo(args)), false);
                 case DEADLINE:
-                    return withSave(addDeadline(args));
+                    return new Response(withSave(addDeadline(args)), false);
                 case EVENT:
-                    return withSave(addEvent(args));
+                    return new Response(withSave(addEvent(args)), false);
                 case FIND:
-                    return findTasks(args);
+                    return new Response(findTasks(args), false);
                 case BYE:
-                    return ui.goodbyeMessage();
+                    return new Response(ui.goodbyeMessage(), false);
                 default:
-                    throw new JerylException("OOPS!!! I'm sorry, but I don't know what that means :-(");
+                    throw new JerylException(
+                            "Wow. I genuinely don't know what that means, and I've seen some things.");
             }
         } catch (JerylException e) {
-            return e.getMessage();
+            return new Response(e.getMessage(), true);
         }
     }
 
@@ -144,7 +161,7 @@ public class Jeryl {
         ArgsAndPriority parsed = extractPriority(args);
         String description = parsed.args().trim();
         if (description.isEmpty()) {
-            throw new JerylException("OOPS!!! The description of a todo cannot be empty.");
+            throw new JerylException("A todo with no description. Bold strategy. Try adding actual words.");
         }
         tasks.add(new Todo(description, parsed.priority()));
         return ui.addedMessage(tasks.get(tasks.size() - 1), tasks.size());
@@ -156,15 +173,16 @@ public class Jeryl {
         requireNoDuplicateFlag(remaining, "/by ");
         int byIndex = remaining.indexOf("/by ");
         if (byIndex == -1) {
-            throw new JerylException("OOPS!!! A deadline must include \"/by <when>\".");
+            throw new JerylException(
+                    "A deadline without \"/by <when>\" is just a todo wearing a costume. Add one.");
         }
         String description = remaining.substring(0, byIndex).trim();
         String by = remaining.substring(byIndex + 4).trim();
         if (description.isEmpty()) {
-            throw new JerylException("OOPS!!! The description of a deadline cannot be empty.");
+            throw new JerylException("A nameless deadline. Spooky, but not useful. Give it a description.");
         }
         if (by.isEmpty()) {
-            throw new JerylException("OOPS!!! The \"/by\" date/time of a deadline cannot be empty.");
+            throw new JerylException("You wrote \"/by\" and then just... stopped. When is it due?");
         }
         tasks.add(new Deadline(description, parseDate(by), parsed.priority()));
         return ui.addedMessage(tasks.get(tasks.size() - 1), tasks.size());
@@ -179,21 +197,23 @@ public class Jeryl {
         int toIndex = remaining.indexOf("/to ");
         if (fromIndex == -1 || toIndex == -1 || toIndex < fromIndex) {
             throw new JerylException(
-                    "OOPS!!! An event must include \"/from <start>\" and \"/to <end>\" in that order.");
+                    "An event needs \"/from <start>\" and \"/to <end>\", in that order. "
+                            + "Events don't end before they begin, even for you.");
         }
         String description = remaining.substring(0, fromIndex).trim();
         String from = remaining.substring(fromIndex + 6, toIndex).trim();
         String to = remaining.substring(toIndex + 4).trim();
         if (description.isEmpty()) {
-            throw new JerylException("OOPS!!! The description of an event cannot be empty.");
+            throw new JerylException("An event with no description. Very mysterious. Also unhelpful.");
         }
         if (from.isEmpty() || to.isEmpty()) {
-            throw new JerylException("OOPS!!! The \"/from\" and \"/to\" date/time of an event cannot be empty.");
+            throw new JerylException("The \"/from\" and \"/to\" fields are empty. I can't schedule a void.");
         }
         LocalDate fromDate = parseDate(from);
         LocalDate toDate = parseDate(to);
         if (!toDate.isAfter(fromDate)) {
-            throw new JerylException("OOPS!!! An event's \"/to\" date must be after its \"/from\" date.");
+            throw new JerylException(
+                    "An event's \"/to\" date must be after its \"/from\" date. Time only moves one way, sorry.");
         }
         tasks.add(new Event(description, fromDate, toDate, parsed.priority()));
         return ui.addedMessage(tasks.get(tasks.size() - 1), tasks.size());
@@ -208,7 +228,7 @@ public class Jeryl {
         int firstIndex = args.indexOf(flag);
         if (firstIndex != -1 && args.indexOf(flag, firstIndex + flag.length()) != -1) {
             throw new JerylException(
-                    "OOPS!!! Please specify \"" + flag.trim() + "\" only once.");
+                    "You typed \"" + flag.trim() + "\" more than once. I'll need that only once, thanks.");
         }
     }
 
@@ -233,12 +253,13 @@ public class Jeryl {
             return new ArgsAndPriority(args, Priority.NONE);
         }
         if (args.indexOf("/priority", priorityIndex + "/priority".length()) != -1) {
-            throw new JerylException("OOPS!!! Please specify \"/priority\" only once.");
+            throw new JerylException("\"/priority\" only once, please. It's a priority flag, not a chant.");
         }
         String before = args.substring(0, priorityIndex);
         String level = args.substring(priorityIndex + "/priority".length()).trim();
         if (level.isEmpty()) {
-            throw new JerylException("OOPS!!! The \"/priority\" flag needs a level: high, medium, or low.");
+            throw new JerylException(
+                    "The \"/priority\" flag needs a level: high, medium, or low. Guessing isn't my job.");
         }
         return new ArgsAndPriority(before.trim(), Priority.fromKeyword(level));
     }
@@ -246,7 +267,7 @@ public class Jeryl {
     private String findTasks(String args) throws JerylException {
         String keyword = args.trim();
         if (keyword.isEmpty()) {
-            throw new JerylException("OOPS!!! Please specify a keyword to find.");
+            throw new JerylException("Find... what, exactly? I can't read minds, only task lists.");
         }
         return ui.matchingTasksMessage(tasks.find(keyword));
     }
@@ -261,8 +282,7 @@ public class Jeryl {
             return LocalDate.parse(dateString);
         } catch (DateTimeParseException e) {
             throw new JerylException(
-                    "OOPS!!! Please give the date as yyyy-mm-dd, e.g. 2019-10-15. \""
-                            + dateString + "\" isn't in that format.");
+                    "\"" + dateString + "\" is not a date I recognize. Try yyyy-mm-dd, e.g. 2019-10-15.");
         }
     }
 
@@ -273,16 +293,16 @@ public class Jeryl {
     private static int parseTaskIndex(String args, String commandWord, int taskCount) throws JerylException {
         String indexString = args.trim();
         if (indexString.isEmpty()) {
-            throw new JerylException("OOPS!!! Please specify which task number to " + commandWord + ".");
+            throw new JerylException("Which task number, exactly? I don't do " + commandWord + " by vibes.");
         }
         int index;
         try {
             index = Integer.parseInt(indexString) - 1;
         } catch (NumberFormatException e) {
-            throw new JerylException("OOPS!!! The task number must be a whole number.");
+            throw new JerylException("The task number must be a whole number. Not whatever that was.");
         }
         if (index < 0 || index >= taskCount) {
-            throw new JerylException("OOPS!!! There is no task with that number.");
+            throw new JerylException("There is no task with that number. I checked. Twice.");
         }
         return index;
     }

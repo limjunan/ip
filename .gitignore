@@ -1,3 +1,7 @@
+# IDE files
+# .vscode/ holds machine-specific absolute JDK paths, so it stays local
+/.vscode/
+
 # IDEA files
 /.idea/
 /out/

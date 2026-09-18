@@ -55,14 +55,15 @@ public class Ui {
      * Returns the app's banner and welcome greeting.
      */
     public String welcomeMessage() {
-        return BANNER + "\nHello! I'm Jeryl.\nWhat can I do for you?";
+        return BANNER + "\nI'm Jeryl. I organize your life so you don't have to think about it.\n"
+                + "Try not to waste my time.";
     }
 
     /**
      * Returns the farewell message shown when the user exits.
      */
     public String goodbyeMessage() {
-        return "Bye. Hope to see you again soon!";
+        return "Leaving already? Fine. Try not to forget everything I just organized for you.";
     }
 
     /**
@@ -87,21 +88,22 @@ public class Ui {
      * total task count.
      */
     public String addedMessage(Task task, int taskCount) {
-        return "Got it. I've added this task:\n  " + task + "\nNow you have " + taskCount + " tasks in the list.";
+        return "Added. Another thing for you to inevitably procrastinate on:\n  " + task
+                + "\nThat's " + taskCount + " tasks now. Impressive, in a concerning way.";
     }
 
     /**
      * Returns confirmation that a task was marked as done.
      */
     public String markedMessage(Task task) {
-        return "Nice! I've marked this task as done:\n  " + task;
+        return "Marked as done. Miracles do happen:\n  " + task;
     }
 
     /**
      * Returns confirmation that a task was marked as not done.
      */
     public String unmarkedMessage(Task task) {
-        return "OK, I've marked this task as not done yet:\n  " + task;
+        return "Unmarked. Back on the pile it goes:\n  " + task;
     }
 
     /**
@@ -109,6 +111,7 @@ public class Ui {
      * total task count.
      */
     public String removedMessage(Task task, int taskCount) {
-        return "Noted. I've removed this task:\n  " + task + "\nNow you have " + taskCount + " tasks in the list.";
+        return "Removed. Out of sight, out of mind:\n  " + task
+                + "\nThat's " + taskCount + " tasks left. Barely a dent.";
     }
 }
